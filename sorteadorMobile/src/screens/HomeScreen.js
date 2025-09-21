@@ -1,17 +1,36 @@
-import React from 'react';
-import { View, Text, Button, Image, StyleSheet, Dimensions } from 'react-native';
+import React, { useRef, useEffect } from "react";
+import { View, Text, Button, Image, StyleSheet, Dimensions, Animated, Easing } from "react-native";
 
-const screenWidth = Dimensions.get('window').width; // pega a largura da tela
+const screenWidth = Dimensions.get('window').width;
 
 export default function HomeScreen({ navigation }) {
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Animação contínua da roleta
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 5000, // gira em 5 segundos
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   return (
     <View style={styles.container}>
       
       {/* Topo: imagem */}
       <View style={styles.top}>
-        <Image
-          source={require('../../assets/roleta.png')} // imagem na pasta assets
-          style={styles.roleta}
+        <Animated.Image
+          source={require('../../assets/roleta.png')}
+          style={[styles.roleta, { transform: [{ rotate }] }]}
           resizeMode="contain"
         />
       </View>
@@ -42,10 +61,10 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   top: {
-  height: 450, // bloco menor, aproxima do meio
-  justifyContent: 'flex-end', // empurra a imagem para baixo do bloco
-  alignItems: 'center',
-},
+    height: 450,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   middle: {
     flex: 2,
     justifyContent: 'center',
@@ -57,11 +76,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   roleta: {
-  width: screenWidth * 0.9, // 70% da largura da tela
-  height: undefined,
-  aspectRatio: 1, // mantém proporção quadrada
-  bottom: -50,
-},
+    width: screenWidth * 0.9, // 90% da largura da tela
+    height: undefined,
+    aspectRatio: 1, // mantém proporção quadrada
+    bottom: -20,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -74,5 +93,6 @@ const styles = StyleSheet.create({
   footer: {
     fontSize: 12,
     color: 'gray',
+    fontWeight: 'bold', // agora em negrito
   },
 });
